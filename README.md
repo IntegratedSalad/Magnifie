@@ -1,0 +1,2 @@
+# Magnifie
+ Image detail magnifier.
