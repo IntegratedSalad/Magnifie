@@ -25,7 +25,13 @@ def proceed_movie_maker():
 	from shutil import copyfile
 	from shutil import rmtree
 
-	mkdir(path.join(MOVIE_FOLDER, 'temp'))
+	mkdir(path.join(MOVIE_FOLDER, 'temp')) # make temp
+
+	# work on images
+
+	# save movie
+	# remove temp
+
 
 
 

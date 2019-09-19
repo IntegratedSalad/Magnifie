@@ -125,3 +125,7 @@ dmypy.json
 # text documents
 
 *.txt
+
+# Tests
+
+#tests.py
