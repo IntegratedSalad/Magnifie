@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageFilter
 import cv2 as cv
 import os
 import shutil
@@ -9,10 +9,11 @@ THIS_FOLDER = os.path.dirname(os.path.realpath(__file__))
 HTMLFI_FOLDER = os.path.join(THIS_FOLDER, 'htmlfi')
 TMP_FOLDER = os.path.join(HTMLFI_FOLDER, 'tmp')
 
-FRAMES = 60
+FRAMES = 24
 SECONDS = 10
 
 def copy_img():
+	print("Copying image...")
 	shutil.copy(os.path.join(HTMLFI_FOLDER,'img.jpg'), TMP_FOLDER + '/base_img.jpg')
 
 def remove_temp(warn):
@@ -85,27 +86,48 @@ def zoom_at(img, x, y, zoom):
     return img.resize((w, h), Image.LANCZOS)
 
 
-def make_frame_animation(base_img): # duration of zoom and duration of move must be added
+def make_frame_animation(base_img, x, y, start_zoom, magnitude): # duration of zoom and duration of move must be added
 
+	# todo: apply blur at the end and start
 
-	# todo: apply blur at the end.
+	blur_range = 10 # frames
+
+	blur_radius = 30
 
 	print("Making frames...")
 
 	if FRAMES * SECONDS > 0:
 
-		zoom = 1.0
-
-		magnitude = 0.007
+		zoom = start_zoom
 
 		for frame in range(FRAMES * SECONDS):
-			img = base_image
 
-			img = zoom_at(img, img.width / 2, img.height / 2, zoom)
+			if frame in range(blur_range):
 
-			img.save(TMP_FOLDER + '/' + str(frame) + '.jpg')
+				img = base_image
 
-			zoom += magnitude
+				image_blurred = img.filter(filter=ImageFilter.GaussianBlur(radius=blur_radius))
+
+				if blur_radius <= 0:
+					blur_radius = 0
+				else:
+					blur_radius -= 1
+
+				image_blurred.save(TMP_FOLDER + '/' + str(frame) + '.jpg')
+
+			else:
+
+				img = base_image
+
+				img = zoom_at(img, x, y, zoom)
+
+				zoom += magnitude
+
+				img.save(TMP_FOLDER + '/' + str(frame) + '.jpg')
+
+
+	else:
+		raise ValueError('Frames or seconds cannot be <= 0!')
 
 
 def sort_dir(dirname):
@@ -129,7 +151,7 @@ def write_movie(dirname):
 	height, width, channels = frame.shape
 
 	fourcc = cv.VideoWriter_fourcc(*'mp4v')
-	out = cv.VideoWriter(os.path.join(OUTPUT_FOLDER, output), fourcc, 60.0, (width, height))
+	out = cv.VideoWriter(os.path.join(OUTPUT_FOLDER, output), fourcc, 24.0, (width, height))
 
 	for file in sort_dir(dirname):
 
@@ -142,31 +164,9 @@ def write_movie(dirname):
 	cv.destroyAllWindows()
 
 
-def make_movie_from_image(image):
-	make_frame_animation(image)
+def make_movie_from_image(image, x, y, start_zoom, magnitude):
+	make_frame_animation(image, x, y, start_zoom, magnitude)
 	write_movie(TMP_FOLDER)
 	remove_temp(False)
 
-
-debug_reset()
-# make_temp()
-# copy_img()
-base_image = Image.open(TMP_FOLDER + '/base_img.jpg')
-
-make_movie_from_image(base_image)
-
-"""
-
-	Make dir
-	Copy img as frames - how many frames do we need?
-	
-
-	To move image from points
-	Specify x and y and directions to which "camera" will be going
-
-
-	Demo version: scaling in place (without moving)
-
-
-"""
 
