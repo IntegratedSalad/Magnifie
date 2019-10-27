@@ -3,18 +3,44 @@ import cv2 as cv
 import os
 import shutil
 import numpy as np
+from web_app import app
+from web_app import ALLOWED_EXTENSIONS
 
 OUTPUT_FOLDER = '/Users/buppo/Python Programs/environments/Magnifie/instance/htmlfo/temp'
 THIS_FOLDER = os.path.dirname(os.path.realpath(__file__))
-HTMLFI_FOLDER = os.path.join(THIS_FOLDER, 'htmlfi')
+HTMLFI_FOLDER = os.path.join(app.instance_path, 'htmlfi')
 TMP_FOLDER = os.path.join(HTMLFI_FOLDER, 'tmp')
 
 FRAMES = 24
 SECONDS = 10
 
 def copy_img():
-	print("Copying image...")
-	shutil.copy(os.path.join(HTMLFI_FOLDER,'img.jpg'), TMP_FOLDER + '/base_img.jpg')
+	#print("Copying image...")
+
+	# 1.Search through files
+	# 2.Don't return error if there is a file and it has available extension.
+
+	name = ""
+
+	extensions_list = list(ALLOWED_EXTENSIONS)
+
+	os.chdir(HTMLFI_FOLDER)
+
+	for extension in extensions_list:
+
+		for file in [f for f in os.listdir(HTMLFI_FOLDER) if f.endswith(".{0}".format(extension))]:
+			if file is None:
+				raise TypeError("Cannot find file with available extension.")
+			else:
+				shutil.copy(os.path.join(HTMLFI_FOLDER,'{0}'.format(file)), TMP_FOLDER + '/base_img.{0}'.format(extension))
+				return extension
+
+	"""TODO: INSTEAD OF A DEFAULT img.jpg SEARCH FOR ANY IMAGE WITH AVAILABLE EXTENSIONS 
+
+	"""
+
+	# It should work when launching app.
+
 
 def remove_temp(warn):
 
@@ -30,16 +56,23 @@ def remove_temp(warn):
 def make_temp():
 	os.mkdir(TMP_FOLDER)
 
-def debug_reset():
+def reset():
 	try:
 		remove_temp(False)
-	except:
+	except FileNotFoundError:
 		pass
-	make_temp()
-	copy_img()
+
+	try:
+		make_temp()
+	except FileExistsError:
+		pass
+
+	"""Join into one try except block"""
 
 
 def zoom_in(input_image):
+
+	"""Function not in use - my trials in making a zoom in."""
 
 	# We must provide an offset which will function as a "camera" - x, y position of left-upper corner of snippet box.
 	# We must provide rectangular area that will function as a "cut box" dimensions.
@@ -86,7 +119,7 @@ def zoom_at(img, x, y, zoom):
     return img.resize((w, h), Image.LANCZOS)
 
 
-def make_frame_animation(base_img, x, y, start_zoom, magnitude): # duration of zoom and duration of move must be added
+def make_frame_animation(base_img, x, y, extension, start_zoom, magnitude): # duration of zoom and duration of move must be added
 
 	# todo: apply blur at the end and start
 
@@ -104,7 +137,7 @@ def make_frame_animation(base_img, x, y, start_zoom, magnitude): # duration of z
 
 			if frame in range(blur_range):
 
-				img = base_image
+				img = base_img
 
 				image_blurred = img.filter(filter=ImageFilter.GaussianBlur(radius=blur_radius))
 
@@ -113,17 +146,17 @@ def make_frame_animation(base_img, x, y, start_zoom, magnitude): # duration of z
 				else:
 					blur_radius -= 1
 
-				image_blurred.save(TMP_FOLDER + '/' + str(frame) + '.jpg')
+				image_blurred.save(TMP_FOLDER + '/' + str(frame) + '.{0}'.format(extension))
 
 			else:
 
-				img = base_image
+				img = base_img
 
 				img = zoom_at(img, x, y, zoom)
 
 				zoom += magnitude
 
-				img.save(TMP_FOLDER + '/' + str(frame) + '.jpg')
+				img.save(TMP_FOLDER + '/' + str(frame) + '.{0}'.format(extension))
 
 
 	else:
@@ -142,16 +175,21 @@ def sort_dir(dirname):
 	return sorted(new, key=lambda f: int(f.split('.')[0]))
 
 
-def write_movie(dirname):
+def write_movie(dirname, extension):
 
 	print("Writing movie...")
 
 	output = "movie.mp4"
-	frame = cv.imread(os.path.join(dirname, 'base_img.jpg'))
+	frame = cv.imread(os.path.join(dirname, 'base_img.{0}'.format(extension)))
 	height, width, channels = frame.shape
 
 	fourcc = cv.VideoWriter_fourcc(*'mp4v')
 	out = cv.VideoWriter(os.path.join(OUTPUT_FOLDER, output), fourcc, 24.0, (width, height))
+
+	try:
+		os.mkdir(OUTPUT_FOLDER)
+	except FileExistsError:
+		pass
 
 	for file in sort_dir(dirname):
 
@@ -164,9 +202,9 @@ def write_movie(dirname):
 	cv.destroyAllWindows()
 
 
-def make_movie_from_image(image, x, y, start_zoom, magnitude):
-	make_frame_animation(image, x, y, start_zoom, magnitude)
-	write_movie(TMP_FOLDER)
+def make_movie_from_image(image, x, y, extension, start_zoom, magnitude):
+	make_frame_animation(image, x, y, extension, start_zoom, magnitude)
+	write_movie(TMP_FOLDER, extension)
 	remove_temp(False)
 
 

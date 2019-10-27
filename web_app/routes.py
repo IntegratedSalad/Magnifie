@@ -3,6 +3,7 @@ from flask import render_template, url_for, request, flash, redirect
 from web_app import app
 from werkzeug.utils import secure_filename
 from web_app import utils
+from web_app import make_movie
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
@@ -16,7 +17,7 @@ def home():
 
 		if f and utils.allowed_file(f.filename):
 			f.save(path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
-			utils.proceed_movie_maker()
+			make_movie.start_movie_maker()
 			return redirect(request.url)
 
 	else:
