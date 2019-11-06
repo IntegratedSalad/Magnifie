@@ -12,8 +12,7 @@ def start_movie_maker():
 	ext = movie_funcs.copy_img()
 	base_image = Image.open(movie_funcs.TMP_FOLDER + '/base_img.{0}'.format(ext))
 
-	movie_funcs.make_movie_from_image(base_image, base_image.width / 2, base_image.height  / 2, ext, 1.0, 0.001)
-
+	movie_funcs.make_movie_from_image(base_image, base_image.width / 2, base_image.height  / 2, ext, 1.0, 0.002)
 
 	"""After the movie is done, delete input file, delete tmp in htmlfo"""
 

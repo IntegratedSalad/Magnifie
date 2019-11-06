@@ -22,3 +22,8 @@ def home():
 
 	else:
 		return render_template('home.html')
+
+@app.route("/upload", methods=['GET'])
+def upload():
+
+	return render_template('upload.html')

@@ -121,7 +121,8 @@ def zoom_at(img, x, y, zoom):
 
 def make_frame_animation(base_img, x, y, extension, start_zoom, magnitude): # duration of zoom and duration of move must be added
 
-	# todo: apply blur at the end and start
+	# todo: apply blur at the end and start V
+	# todo: make magnitude a variable from client.
 
 	blur_range = 10 # frames
 

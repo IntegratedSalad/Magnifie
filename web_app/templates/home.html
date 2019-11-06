@@ -13,17 +13,31 @@
 
     <title>Magnifie - twitter image show off</title>
   </head>
+
+
   <body>
+
   	<div class="title_div">
   		<h1 class="title"> Magnifie</h1>
   		<svg width="1450" height="450">
   			<rect class="rect" x="0" y="0"></rect>
   		</svg>
   	</div>
-	<form action="/" enctype="multipart/form-data" method="POST">
-		<input type="file" name="img_upload" autocomplete="off">
-		<input type="submit" name="submit" value="Upload File"> 
-	</form>
+
+    <div id="upload">
+      <form action="/" enctype="multipart/form-data" method="POST">
+        <input class="file_input_button" type="file" name="img_upload" autocomplete="off">
+        <input class="file_input_button" type="submit" name="submit" value="Upload File"> 
+      </form>
+
+    </div>
+
+  	
+
+
+
+
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
